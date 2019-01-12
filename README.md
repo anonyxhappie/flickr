@@ -1,2 +1,2 @@
 # flickr-clone
-Flickr lIke basic api implementation in django
+Flickr like basic api implementation in django
