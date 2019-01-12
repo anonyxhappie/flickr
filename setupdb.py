@@ -59,7 +59,7 @@ async def stream_download_image(session, url, image_path):
 async def main():
     output = []
 
-    image_path = BASE_DIR + '/media/'
+    image_path = BASE_DIR + '/staticfiles/media/'
 
     if not os.path.exists(image_path):
         os.makedirs(image_path)
@@ -74,7 +74,7 @@ async def main():
     
     data = json.loads(json.dumps(output))
 
-    with open(BASE_DIR + '/flickr.json', 'w') as outfile:
+    with open(BASE_DIR + '/staticfiles/flickr.json', 'w') as outfile:
         json.dump(data, outfile)
 
 
