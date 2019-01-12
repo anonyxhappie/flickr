@@ -16,14 +16,3 @@ from django.conf import settings
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'flickr.settings')
 
 application = get_wsgi_application()
-
-if not settings.DEBUG:
-    try:
-
-        from whitenoise.django import DjangoWhiteNoise
-
-        application = get_wsgi_application()
-        application = DjangoWhiteNoise(application)
-    except:
-        pass
-
