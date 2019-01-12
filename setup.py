@@ -1,8 +1,10 @@
 import os
+import sys
+import json
+import getopt
 import asyncio
 import aiohttp
 import flickrapi
-import json
 
 from decouple import config
 
@@ -21,7 +23,7 @@ def download_images_from_flickr():
 
 def get_flickr_urls(group_keyword, flickr):
 
-    per_page = 50
+    per_page = 5
 
     photos = flickr.walk(text=group_keyword,
                         extras='url_c',
@@ -43,7 +45,7 @@ def get_flickr_urls(group_keyword, flickr):
             photo_counter += 1
 
 
-    print('group:', group_keyword, '- downloading...')
+    print('\ngroup:', group_keyword, '- downloading...')
     return urls, group_photos
     
 async def stream_download_image(session, url, image_path):
@@ -55,11 +57,11 @@ async def stream_download_image(session, url, image_path):
                 if not chunk:
                     break
                 fd.write(chunk)
-
+    
 async def main():
     output = []
 
-    image_path = BASE_DIR + '/staticfiles/media/'
+    image_path = BASE_DIR + '/media/'
 
     if not os.path.exists(image_path):
         os.makedirs(image_path)
@@ -70,42 +72,65 @@ async def main():
             for url in urls:
                 await stream_download_image(session, url, image_path)
     
-    print('download complete')
+    print('\ndownloading complete')
     
     data = json.loads(json.dumps(output))
 
-    with open(BASE_DIR + '/staticfiles/flickr.json', 'w') as outfile:
+    with open(BASE_DIR + '/flickr.json', 'w') as outfile:
         json.dump(data, outfile)
 
 
-def json_to_database():
+def json_to_database(user):
     data = open(BASE_DIR + '/flickr.json').read()
     groups = json.loads(data)
     
-    try:
-        user = User.objects.get(id=1) # superuser by default
-    except User.DoesNotExist:
-        print('create atleast one user using manage.py createsuperuser')
-        return
-
     for photos in groups:
-        group = Group.objects.create(user=user, name=photos[0]['group'])
+        group, _ = Group.objects.update_or_create(user=user, name=photos[0]['group'])
         for photo in photos:
-            Photo.objects.create(group=group, title=photo['title'], image=photo['url'])
+            Photo.objects.update_or_create(group=group, title=photo['title'], image=photo['url'])
 
     print('json written in DB')
 
+def console_help():
+    print('<HELP>: \n\tsetupdb.py -u <username>\n\n\tsetupdb.py --username <username>\n\n')
+    sys.exit()
 
 if __name__ == '__main__':
-  os.environ['DJANGO_SETTINGS_MODULE']='flickr.settings'
+    os.environ['DJANGO_SETTINGS_MODULE']='flickr.settings'
 
-  from django import setup
-  setup()
-  
-  from django.contrib.auth.models import User
-  from flickr_api.models import Photo, Group
+    from django import setup
+    setup()
 
-  loop = asyncio.get_event_loop()
-  loop.run_until_complete(main())
-  json_to_database()
+    from django.contrib.auth.models import User
+    from flickr_api.models import Photo, Group
+
+    username = ''
+   
+    try:
+        opts, args = getopt.getopt(sys.argv[1:],'hu:',['help', 'username'])
+    except getopt.GetoptError:
+        console_help()
+
+    if not opts or len(opts) != 1:
+        console_help()
+
+    for opt, arg in opts:
+        if opt == '-u' and bool(arg):
+            username = arg
+        elif opt == '--username' and len(args)==1:
+            username = args[0]
+        else:
+            console_help()
+
+        
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        print('<INFO>: user', username, 'not found (you can create superuser from command - <python manage.py createsuperuser>)')
+        sys.exit()
+
+    print(username, 'found')
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
+    json_to_database(user)
 

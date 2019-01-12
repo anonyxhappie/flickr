@@ -14,21 +14,17 @@
 
 * pip install -r requirements.txt
 
-##### Create migrations
-
-* python manage.py makemigrations
-
 ##### Migrate to Database
 
 * python manage.py migrate
 
-##### Create Superuser (same used for Photos & Django Admin)
+##### Create Superuser
 
 * python manage.py createsuperuser
 
 ##### Setup Database
 
-* python setupdb.py
+* python setup.py -u <username>
 
 ##### Run Project on locally on port 8000
 
