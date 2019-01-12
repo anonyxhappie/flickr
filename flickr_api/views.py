@@ -45,7 +45,7 @@ class PhotoViewSet(viewsets.ReadOnlyModelViewSet):
         if not bool(group_id): # if query_param with key `group` is not given
             return Response({'detail': 'please provide query param - /photos/?group=<GID>'}, status=status.HTTP_501_NOT_IMPLEMENTED)
 
-        queryset = Photo.objects.filter(Q(group__user=request.user) & Q(group__id=int(group_id))).order_by('-updated_at')
+        queryset = Photo.objects.filter(group__user=request.user, group__id=int(group_id)).order_by('-updated_at')
         serializer = PhotoSerializer(queryset, many=True)
         return Response(serializer.data)
 
