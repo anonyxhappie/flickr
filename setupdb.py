@@ -4,11 +4,14 @@ import aiohttp
 import flickrapi
 import json
 
+from decouple import config
+
+
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 def download_images_from_flickr():
-    api_key = 'c6a2c45591d4973ff525042472446ca2'
-    api_secret = '202ffe6f387ce29b'
+    api_key = config('FLICKR_API_KEY')
+    api_secret = config('FLICKR_API_SECRET')
     flickr = flickrapi.FlickrAPI(api_key, api_secret, cache=True)
 
     group_keywords = ['2015', '2016', '2017', '2018']
