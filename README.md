@@ -28,7 +28,7 @@
 
 ##### Setup Database
 
-* python setup.py -u <username>
+* python setup.py -u `username`
 
 ##### Run Project on locally on port 8000
 
