@@ -32,9 +32,9 @@
 
 ## API Documentation
 
-* Swagger - `localhost:8000`
+* Swagger - [localhost:8000](https://flickr-anonyxhappie.herokuapp.com)
 
-* DRF Browsable API - `localhost:8000/api/v1`
+* DRF Browsable API - [localhost:8000/api/v1](https://flickr-anonyxhappie.herokuapp.com/api/v1/)
 
 * [Postman Collection](https://www.getpostman.com/collections/47cb16efe6ad42a36611)
 

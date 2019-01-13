@@ -19,11 +19,11 @@ def download_images_from_flickr():
     group_keywords = ['2015', '2016', '2017', '2018']
 
     for gk in group_keywords:
-        yield get_flickr_urls(gk, flickr)
+        yield get_flickr_urls(gk, flickr) # return list of photos urls and photo object for each group_keyword
 
 def get_flickr_urls(group_keyword, flickr):
 
-    per_page = 5
+    per_page = 50 # number of photos per group
 
     photos = flickr.walk(text=group_keyword,
                         extras='url_c',
@@ -72,7 +72,7 @@ async def main():
             for url in urls:
                 await stream_download_image(session, url, image_path)
     
-    print('\ndownloading complete')
+    print('\n<INFO>:: downloading complete')
     
     data = json.loads(json.dumps(output))
 
@@ -89,10 +89,10 @@ def json_to_database(user):
         for photo in photos:
             Photo.objects.update_or_create(group=group, title=photo['title'], image=photo['url'])
 
-    print('json written in DB')
+    print('<INFO>:: json written in DB')
 
 def console_help():
-    print('<HELP>: \n\tsetupdb.py -u <username>\n\n\tsetupdb.py --username <username>\n\n')
+    print('<HELP>:: \n\tsetupdb.py -u <username>\n\n\tsetupdb.py --username <username>\n\n')
     sys.exit()
 
 if __name__ == '__main__':
@@ -104,7 +104,7 @@ if __name__ == '__main__':
     from django.contrib.auth.models import User
     from flickr_api.models import Photo, Group
 
-    username = ''
+    username = None
    
     try:
         opts, args = getopt.getopt(sys.argv[1:],'hu:',['help', 'username'])
@@ -122,14 +122,17 @@ if __name__ == '__main__':
         else:
             console_help()
 
-        
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
-        print('<INFO>: user', username, 'not found (you can create superuser from command - <python manage.py createsuperuser>)')
+        print('<INFO>:: user', username, 'not found (you can create superuser from command - `python manage.py createsuperuser`)')
+        sys.exit()
+    except Exception as e:
+        print('<INFO>::', str(e))
+        print('<INFO>:: run command - `python manage.py migrate` and create user before running setup.py')
         sys.exit()
 
-    print(username, 'found')
+    print('<INFO>::', username, 'found')
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main())
     json_to_database(user)
