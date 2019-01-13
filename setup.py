@@ -1,3 +1,7 @@
+"""setup.py: Script to download photos from Flickr API and map them to django models(database)"""
+__author__ = "Akshay Saini" 
+__email__  = "akkilsl522@gmail.com"
+
 import os
 import sys
 import json
